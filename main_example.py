@@ -98,4 +98,4 @@ class MyStreamListener(tweepy.StreamListener):
 myStreamListener = MyStreamListener(api)
 myStream = tweepy.Stream(auth = api.auth, listener=myStreamListener)
 
-myStream.filter(track=['#100DaysOfCode'], languages=['en'], async=True)
+myStream.filter(track=['#100DaysOfCode'], languages=['en'], is_async=True)
