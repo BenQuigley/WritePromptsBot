@@ -13,12 +13,17 @@ LOGGER.setLevel(logging.DEBUG)
 INTERVAL = 60 * 60 * 8  # tweet every 8 hours
 
 try:
-    from secret import CONSUMER_KEY, CONSUMER_SECRET, KEY, SECRET
+    from secret import (
+        TWITTER_CONSUMER_KEY,
+        TWITTER_CONSUMER_SECRET,
+        TWITTER_KEY,
+        TWITTER_SECRET,
+    )
 except ImportError:
-    CONSUMER_KEY = os.environ.get("TWITTER_CONSUMER_KEY")
-    CONSUMER_SECRET = os.environ.get("TWITTER_CONSUMER_SECRET")
-    KEY = os.environ.get("TWITTER_KEY")
-    SECRET = os.environ.get("TWITTER_SECRET")
+    TWITTER_CONSUMER_KEY = os.environ.get("TWITTER_CONSUMER_KEY")
+    TWITTER_CONSUMER_SECRET = os.environ.get("TWITTER_CONSUMER_SECRET")
+    TWITTER_KEY = os.environ.get("TWITTER_KEY")
+    TWITTER_SECRET = os.environ.get("TWITTER_SECRET")
 
 
 def tweet(twitter):
@@ -28,8 +33,8 @@ def tweet(twitter):
 
 def main():
     """Main control flow function."""
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(KEY, SECRET)
+    auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+    auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
     api = tweepy.API(auth)
 
     LOGGER.info("Logged in successfully as {}".format(api.me().screen_name))
