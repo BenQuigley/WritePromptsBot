@@ -5,7 +5,7 @@ import json
 import os
 import random
 import time
-import uuid
+import zipfile
 
 import tweepy
 from better_profanity import profanity
@@ -15,6 +15,8 @@ LOGGER = logging.getLogger("WritePromptsBot logger")
 LOGGER.setLevel(logging.DEBUG)
 
 INTERVAL = 60 * 60 * 8  # tweet every 8 hours
+WORD_LIST = "static/english-words/words_dictionary.json"
+ICONS_ZIP = "static/lorc_icons/game-icons.net.svg.zip"
 
 try:
     from secret import (
@@ -33,10 +35,16 @@ except ImportError:
 def random_word():
     """Return a random word from the word list."""
     # Loading from JSON for better performance.
-    word_list = "static/english-words/words_dictionary.json"
-    with open(word_list) as infile:
+    with open(WORD_LIST) as infile:
         words = tuple(json.loads(infile.read()).keys())
         return random.choice(words)
+
+
+def random_image():
+    """Return the name of a random image from the icon zip."""
+    icons_zip = zipfile.ZipFile(ICONS_ZIP)
+    icons_names = icons_zip.infolist()
+    return random.choice(icons_names)
 
 
 def tweet(twitter):
