@@ -3,6 +3,7 @@
 import logging
 import os
 import time
+import uuid
 
 import tweepy
 
@@ -28,7 +29,9 @@ except ImportError:
 
 def tweet(twitter):
     """Send a new tweet to the Twitter account."""
-    twitter.update_status("Hello world!")
+    tweet_contents = "Beep boop, %s" % str(uuid.uuid4())[:8]
+    twitter.update_status(tweet_contents)
+    LOGGER.info("Tweeted '%s'", tweet_contents)
 
 
 def main():
