@@ -1,7 +1,7 @@
 """Main code for writing prompts Twitter bot."""
 
-import logging
 import json
+import logging
 import os
 import random
 import time
@@ -49,9 +49,11 @@ def random_image():
 
 def tweet(twitter):
     """Send a new tweet to the Twitter account."""
+
     def gen_tweet_contents():
         """Placeholder."""
         return "Beep boop... {}".format(random_word())
+
     tweet_contents = gen_tweet_contents()
     while profanity.contains_profanity(tweet_contents):
         tweet_contents = gen_tweet_contents()
