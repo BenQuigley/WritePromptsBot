@@ -17,6 +17,7 @@ LOGGER.setLevel(logging.DEBUG)
 INTERVAL = 60 * 60 * 8  # tweet every 8 hours
 WORD_LIST = "static/english-words/words_dictionary.json"
 ICONS_ZIP = "static/lorc_icons/game-icons.net.svg.zip"
+HTML_TEMPLATE = "templates/image.html"
 
 try:
     from secret import (
@@ -40,6 +41,14 @@ def random_word():
         return random.choice(words)
 
 
+def random_polite_word():
+    """Return a random non-profane word from the word list."""
+    word = random_word()
+    while profanity.contains_profanity(word):
+        word = random_word()
+    return word
+
+
 def random_image():
     """Return the name of a random image from the icon zip."""
     icons_zip = zipfile.ZipFile(ICONS_ZIP)
@@ -47,18 +56,16 @@ def random_image():
     return random.choice(icons_names)
 
 
-def tweet(twitter):
-    """Send a new tweet to the Twitter account."""
+def gen_tweet_contents():
+    """Placeholder."""
+    return "Beep boop... {}".format(random_polite_word())
 
-    def gen_tweet_contents():
-        """Placeholder."""
-        return "Beep boop... {}".format(random_word())
 
-    tweet_contents = gen_tweet_contents()
-    while profanity.contains_profanity(tweet_contents):
-        tweet_contents = gen_tweet_contents()
-    twitter.update_status(tweet_contents)
-    LOGGER.info("Tweeted '%s'", tweet_contents)
+def generate_html(word, image):
+    """Return HTML formatted with a given word and image."""
+    with open(HTML_TEMPLATE) as infile:
+        template = infile.read()
+    return template.format(word=word, image=image)
 
 
 def main():
@@ -71,7 +78,14 @@ def main():
     LOGGER.info("Logged in successfully as {}".format(api.me().screen_name))
 
     while True:
-        tweet(api)
+        word = random_polite_word()
+        html = generate_html(word, random_image().filename)
+        html_file = "index.html"
+        with open(html_file, "w") as outfile:
+            outfile.write(html)
+        os.system(f"firefox {html_file}")
+        # twitter.update_status(tweet_contents)
+        # LOGGER.info("Tweeted '%s'", tweet_contents)
         time.sleep(INTERVAL)
 
 
