@@ -49,26 +49,26 @@ def random_polite_word():
     return word
 
 
-def random_image():
+def random_image() -> str:
     """Return the name of a random image from the icon zip."""
     icons_zip = zipfile.ZipFile(ICONS_ZIP)
     icons_names = icons_zip.infolist()
     return random.choice(icons_names)
 
 
-def gen_tweet_contents():
+def gen_tweet_contents() -> str:
     """Placeholder."""
     return "Beep boop... {}".format(random_polite_word())
 
 
-def generate_html(word, image):
+def generate_html(word: str, image: str) -> str:
     """Return HTML formatted with a given word and image."""
     with open(HTML_TEMPLATE) as infile:
         template = infile.read()
     return template.format(word=word, image=image)
 
 
-def main():
+def main() -> None:
     """Main control flow function."""
     profanity.load_censor_words()  # Initialize the list of bad words
     auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
