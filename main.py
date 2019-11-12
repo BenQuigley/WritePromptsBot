@@ -15,8 +15,9 @@ LOGGER = logging.getLogger("WritePromptsBot logger")
 LOGGER.setLevel(logging.DEBUG)
 
 INTERVAL = 60 * 60 * 8  # tweet every 8 hours
-WORD_LIST = "static/english-words/words_dictionary.json"
-ICONS_ZIP = "static/lorc_icons/game-icons.net.svg.zip"
+STATIC_DIR = "static"
+WORD_LIST = os.path.join(STATIC_DIR, "english-words/words_dictionary.json")
+ICONS_ZIP = os.path.join(STATIC_DIR, "lorc_icons/game-icons.net.svg.zip")
 HTML_TEMPLATE = "templates/image.html"
 
 try:
@@ -50,10 +51,13 @@ def random_polite_word():
 
 
 def random_image() -> str:
-    """Return the name of a random image from the icon zip."""
+    """Extract a random image from the icon zip, and returns its name."""
     icons_zip = zipfile.ZipFile(ICONS_ZIP)
     icons_names = icons_zip.infolist()
-    return random.choice(icons_names)
+    icon = random.choice(icons_names)
+    image_name = os.path.join(STATIC_DIR, icon.filename)
+    icons_zip.extract(icon, STATIC_DIR)
+    return image_name
 
 
 def gen_tweet_contents() -> str:
@@ -79,7 +83,7 @@ def main() -> None:
 
     while True:
         word = random_polite_word()
-        html = generate_html(word, random_image().filename)
+        html = generate_html(word, random_image())
         html_file = "index.html"
         with open(html_file, "w") as outfile:
             outfile.write(html)

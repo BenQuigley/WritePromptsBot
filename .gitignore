@@ -1,3 +1,5 @@
 twibot/*
 env/
+static/icons/
 secret.py
+index.html
