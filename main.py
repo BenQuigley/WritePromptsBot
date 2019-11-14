@@ -5,6 +5,7 @@ import logging
 import os
 import random
 import re
+import sys
 import time
 import zipfile
 
@@ -12,6 +13,8 @@ import tweepy
 from better_profanity import profanity
 
 from colors import COLORS
+
+TEST_MODE = any(val in sys.argv[1:] for val in ("-t", "--test"))
 
 logging.basicConfig()
 LOGGER = logging.getLogger("WritePromptsBot logger")
@@ -107,8 +110,15 @@ def main() -> None:
         with open(html_file, "w") as outfile:
             outfile.write(html)
         os.system(f"firefox {html_file}")
-        api.update_with_media("test.png", tweet_contents)
-        LOGGER.info("Tweeted '%s'", tweet_contents)
+        if TEST_MODE:
+            LOGGER.info(
+                "Not tweeting, because test mode, but contents would be:"
+            )
+            LOGGER.info(tweet_contents)
+        else:
+            api.update_with_media("test.png", tweet_contents)
+            LOGGER.info("Tweeted '%s'", tweet_contents)
+
         time.sleep(INTERVAL)
 
 
