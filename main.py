@@ -98,6 +98,7 @@ def main() -> None:
 
     while True:
         word = random_polite_word()
+        tweet_contents = gen_tweet_contents()
         color = random.choice(COLORS)
         image = random_image()
         color_svg_image(image, color)
@@ -106,8 +107,8 @@ def main() -> None:
         with open(html_file, "w") as outfile:
             outfile.write(html)
         os.system(f"firefox {html_file}")
-        # twitter.update_status(tweet_contents)
-        # LOGGER.info("Tweeted '%s'", tweet_contents)
+        api.update_with_media("test.png", tweet_contents)
+        LOGGER.info("Tweeted '%s'", tweet_contents)
         time.sleep(INTERVAL)
 
 
