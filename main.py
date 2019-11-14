@@ -4,15 +4,18 @@ import json
 import logging
 import os
 import random
+import re
 import time
 import zipfile
 
 import tweepy
 from better_profanity import profanity
 
+from colors import COLORS
+
 logging.basicConfig()
 LOGGER = logging.getLogger("WritePromptsBot logger")
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 
 INTERVAL = 60 * 60 * 8  # tweet every 8 hours
 STATIC_DIR = "static"
@@ -57,7 +60,19 @@ def random_image() -> str:
     icon = random.choice(icons_names)
     image_name = os.path.join(STATIC_DIR, icon.filename)
     icons_zip.extract(icon, STATIC_DIR)
+    LOGGER.info(f"Using image: {image_name}")
     return image_name
+
+
+def color_svg_image(svg_path: str, color: str) -> None:
+    """Edit an SVG image to replace its background with the supplied color."""
+    with open(svg_path) as infile:
+        svg_contents = infile.readlines()
+    with open(svg_path, "w") as outfile:
+        for line in svg_contents:
+            processed_line = re.sub('fill="#fff"', f'fill="{color}"', line)
+            LOGGER.debug("Writing %s", processed_line)
+            outfile.write(processed_line)
 
 
 def gen_tweet_contents() -> str:
@@ -65,11 +80,11 @@ def gen_tweet_contents() -> str:
     return "Beep boop... {}".format(random_polite_word())
 
 
-def generate_html(word: str, image: str) -> str:
+def generate_html(color: str, word: str, image: str) -> str:
     """Return HTML formatted with a given word and image."""
     with open(HTML_TEMPLATE) as infile:
         template = infile.read()
-    return template.format(word=word, image=image)
+    return template % (color, word, image)
 
 
 def main() -> None:
@@ -83,7 +98,10 @@ def main() -> None:
 
     while True:
         word = random_polite_word()
-        html = generate_html(word, random_image())
+        color = random.choice(COLORS)
+        image = random_image()
+        color_svg_image(image, color)
+        html = generate_html(color, word, image)
         html_file = "index.html"
         with open(html_file, "w") as outfile:
             outfile.write(html)
