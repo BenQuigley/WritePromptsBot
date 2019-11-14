@@ -9,9 +9,10 @@ import sys
 import time
 import zipfile
 
+from PIL import Image, ImageDraw
+
 import tweepy
 from better_profanity import profanity
-
 from colors import COLORS
 
 TEST_MODE = any(val in sys.argv[1:] for val in ("-t", "--test"))
@@ -25,6 +26,8 @@ STATIC_DIR = "static"
 WORD_LIST = os.path.join(STATIC_DIR, "english-words/words_dictionary.json")
 ICONS_ZIP = os.path.join(STATIC_DIR, "lorc_icons/game-icons.net.svg.zip")
 HTML_TEMPLATE = "templates/image.html"
+HTML_FILENAME = "writing_prompt.html"
+IMAGE_FILENAME = "test.png"
 
 try:
     from secret import (
@@ -78,16 +81,27 @@ def color_svg_image(svg_path: str, color: str) -> None:
             outfile.write(processed_line)
 
 
-def gen_tweet_contents() -> str:
+def gen_tweet_contents(word: str) -> str:
     """Placeholder."""
-    return "Beep boop... {}".format(random_polite_word())
+    return "Beep boop... {}".format(word)
 
 
 def generate_html(color: str, word: str, image: str) -> str:
     """Return HTML formatted with a given word and image."""
+    # Nice to have: render this as a homepage using Flask
     with open(HTML_TEMPLATE) as infile:
         template = infile.read()
     return template % (color, word, image)
+
+
+def generate_html_file(*args):
+    """Create HTML formatted with a given word and image.
+
+    :return: The HTML file's filename.
+    """
+    html = generate_html(*args)  # pylint: disable=no-value-for-parameter
+    with open(HTML_FILENAME, "w") as outfile:
+        outfile.write(html)
 
 
 def main() -> None:
@@ -105,18 +119,15 @@ def main() -> None:
         color = random.choice(COLORS)
         image = random_image()
         color_svg_image(image, color)
-        html = generate_html(color, word, image)
-        html_file = "index.html"
-        with open(html_file, "w") as outfile:
-            outfile.write(html)
-        os.system(f"firefox {html_file}")
+        generate_html_file(color, word, image)
         if TEST_MODE:
             LOGGER.info(
                 "Not tweeting, because test mode, but contents would be:"
             )
             LOGGER.info(tweet_contents)
+            os.system(f"firefox {HTML_FILENAME}")
         else:
-            api.update_with_media("test.png", tweet_contents)
+            api.update_with_media(IMAGE_FILENAME, tweet_contents)
             LOGGER.info("Tweeted '%s'", tweet_contents)
 
         time.sleep(INTERVAL)
