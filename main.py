@@ -9,7 +9,7 @@ import sys
 import time
 import zipfile
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 import tweepy
 from better_profanity import profanity
@@ -27,7 +27,9 @@ WORD_LIST = os.path.join(STATIC_DIR, "english-words/words_dictionary.json")
 ICONS_ZIP = os.path.join(STATIC_DIR, "lorc_icons/game-icons.net.svg.zip")
 HTML_TEMPLATE = "templates/image.html"
 HTML_FILENAME = "writing_prompt.html"
-IMAGE_FILENAME = "test.png"
+IMAGE_FILENAME = "writing_prompt.png"
+IMAGE_FONT = ("static/fonts/Glacial Indifference Desktop Family OTF/"
+              "GlacialIndifference-Regular.otf")
 
 try:
     from secret import (
@@ -94,7 +96,7 @@ def generate_html(color: str, word: str, image: str) -> str:
     return template % (color, word, image)
 
 
-def generate_html_file(*args):
+def generate_html_file(*args) -> None:
     """Create HTML formatted with a given word and image.
 
     :return: The HTML file's filename.
@@ -102,6 +104,25 @@ def generate_html_file(*args):
     html = generate_html(*args)  # pylint: disable=no-value-for-parameter
     with open(HTML_FILENAME, "w") as outfile:
         outfile.write(html)
+
+
+def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
+    """Create an image formatted with a given word and image.
+
+    :return: The image's filename.
+    """
+    image_dims = (1200, 628)
+    image = Image.new("RGB", image_dims, color=color)
+    # Load the font and draw the word.
+    image_font = ImageFont.truetype(IMAGE_FONT, 85)
+    draw = ImageDraw.Draw(image)
+    # Center the text on the image.
+    width, _height = draw.textsize(word, font=image_font)
+    draw.text(((image_dims[0] - width) / 2, 10), word, fill=(0, 0, 0), font=image_font)
+    # Open the SVG file, and stamp it onto the formatted image.
+    icon = Image.open(icon_image)
+    image.paste(icon, (40, 40))
+    image.save(IMAGE_FILENAME)
 
 
 def main() -> None:
@@ -115,17 +136,20 @@ def main() -> None:
 
     while True:
         word = random_polite_word()
-        tweet_contents = gen_tweet_contents()
+        text = f"{word}!"
+        tweet_contents = gen_tweet_contents(word)
         color = random.choice(COLORS)
         image = random_image()
         color_svg_image(image, color)
-        generate_html_file(color, word, image)
+        generate_html_file(color, text, image)
+        generate_formatted_image(color, text, image)
         if TEST_MODE:
             LOGGER.info(
                 "Not tweeting, because test mode, but contents would be:"
             )
             LOGGER.info(tweet_contents)
-            os.system(f"firefox {HTML_FILENAME}")
+            os.system(f"firefox {HTML_FILENAME} &")
+            os.system(f"xdg-open {IMAGE_FILENAME} &")
         else:
             api.update_with_media(IMAGE_FILENAME, tweet_contents)
             LOGGER.info("Tweeted '%s'", tweet_contents)
