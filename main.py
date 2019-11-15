@@ -155,11 +155,6 @@ def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
 def main() -> None:
     """Main control flow function."""
     profanity.load_censor_words()  # Initialize the list of bad words
-    auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-    auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
-    api = tweepy.API(auth)
-
-    LOGGER.info("Logged in successfully as {}".format(api.me().screen_name))
 
     while True:
         word = random_polite_word()
@@ -177,6 +172,15 @@ def main() -> None:
             LOGGER.info(tweet_contents)
             os.system(f"xdg-open {IMAGE_FILENAME} &")
         else:
+            auth = tweepy.OAuthHandler(
+                TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
+            )
+            auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
+            api = tweepy.API(auth)
+
+            LOGGER.info(
+                "Logged in successfully as {}".format(api.me().screen_name)
+            )
             api.update_with_media(IMAGE_FILENAME, tweet_contents)
             LOGGER.info("Tweeted '%s'", tweet_contents)
 
