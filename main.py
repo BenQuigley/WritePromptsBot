@@ -40,10 +40,10 @@ try:
         TWITTER_SECRET,
     )
 except ImportError:
-    TWITTER_CONSUMER_KEY = os.environ["TWITTER_CONSUMER_KEY"]
-    TWITTER_CONSUMER_SECRET = os.environ["TWITTER_CONSUMER_SECRET"]
-    TWITTER_KEY = os.environ["TWITTER_KEY"]
-    TWITTER_SECRET = os.environ["TWITTER_SECRET"]
+    TWITTER_CONSUMER_KEY = os.environ.get("TWITTER_CONSUMER_KEY")
+    TWITTER_CONSUMER_SECRET = os.environ.get("TWITTER_CONSUMER_SECRET")
+    TWITTER_KEY = os.environ.get("TWITTER_KEY")
+    TWITTER_SECRET = os.environ.get("TWITTER_SECRET")
 
 
 def random_word():
@@ -172,12 +172,22 @@ def main() -> None:
             LOGGER.info(tweet_contents)
             os.system(f"xdg-open {IMAGE_FILENAME} &")
         else:
+            if not all(
+                (
+                    TWITTER_CONSUMER_KEY,
+                    TWITTER_CONSUMER_SECRET,
+                    TWITTER_KEY,
+                    TWITTER_SECRET,
+                )
+            ):
+                raise ValueError(
+                    "Twitter authentication secrets have not been loaded."
+                )
             auth = tweepy.OAuthHandler(
                 TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
             )
             auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
             api = tweepy.API(auth)
-
             LOGGER.info(
                 "Logged in successfully as {}".format(api.me().screen_name)
             )
