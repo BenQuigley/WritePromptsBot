@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import random
-import re
 import sys
 import time
 import zipfile
@@ -41,10 +40,10 @@ try:
         TWITTER_SECRET,
     )
 except ImportError:
-    TWITTER_CONSUMER_KEY = os.environ.get("TWITTER_CONSUMER_KEY")
-    TWITTER_CONSUMER_SECRET = os.environ.get("TWITTER_CONSUMER_SECRET")
-    TWITTER_KEY = os.environ.get("TWITTER_KEY")
-    TWITTER_SECRET = os.environ.get("TWITTER_SECRET")
+    TWITTER_CONSUMER_KEY = os.environ["TWITTER_CONSUMER_KEY"]
+    TWITTER_CONSUMER_SECRET = os.environ["TWITTER_CONSUMER_SECRET"]
+    TWITTER_KEY = os.environ["TWITTER_KEY"]
+    TWITTER_SECRET = os.environ["TWITTER_SECRET"]
 
 
 def random_word():
