@@ -103,7 +103,7 @@ def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
     :return: The image's filename.
     """
     image_dims = (1200, 628)
-    image = Image.new("RGB", image_dims, color=color)
+    image = Image.new("RGBA", image_dims, color=color)
     # Load the font and draw the word.
     image_font = ImageFont.truetype(IMAGE_FONT, 85)
     draw = ImageDraw.Draw(image)
@@ -116,8 +116,8 @@ def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
         font=image_font,
     )
     # Open the SVG file, and stamp it onto the formatted image.
-    icon = Image.open(icon_image)
-    image.paste(icon, (40, 40))
+    icon = Image.open(icon_image).convert("RGBA")
+    image.paste(icon, (40, 40), mask=icon)
     image.save(IMAGE_FILENAME)
 
 
