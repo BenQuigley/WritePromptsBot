@@ -109,23 +109,47 @@ def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
     :return: The image's filename.
     """
     image_dims = (1476, 772)
+    text_vertical_offset = 130
+    image_vertical_offset = 205
     image = Image.new("RGBA", image_dims, color=color)
     # Load the font and draw the word.
-    image_font = ImageFont.truetype(IMAGE_FONT, 130)
+    image_font = ImageFont.truetype(IMAGE_FONT, text_vertical_offset)
+    font_size = 35
     draw = ImageDraw.Draw(image)
+
     # Center the text on the image.
-    width, _height = draw.textsize(word, font=image_font)
+    text_width, _text_height = draw.textsize(word, font=image_font)
+
+    # Check for the text spilling off the page.
+    font_size_shrunk = False
+    while text_width > image_dims[0]:
+        font_size_shrunk = True
+        font_size -= 1
+    if font_size_shrunk:
+        LOGGER.warning(
+            f"A word, {word}, was too big for the image. Shrinking "
+            f"to {font_size} font."
+        )
     draw.text(
-        (center_item(image_dims[0], width), 35),
+        (center_item(image_dims[0], text_width), font_size),
         word,
         fill=(0, 0, 0),
         font=image_font,
     )
-    # Open the SVG file, and stamp it onto the formatted image.
+
+    # Open the icon file, and stamp it onto the formatted image.
     icon = Image.open(icon_image).convert("RGBA")
     image.paste(
-        icon, (center_item(image_dims[0], icon.width), 205), mask=icon
+        icon,
+        (center_item(image_dims[0], icon.width), image_vertical_offset),
+        mask=icon,
     )
+
+    # Check for the image spilling off the page.
+    if image_vertical_offset + icon.height > image_dims[1]:
+        raise Exception(
+            "The icon does not fit on the page as currently configured."
+        )
     image.save(IMAGE_FILENAME)
 
 
@@ -141,6 +165,7 @@ def main() -> None:
     while True:
         word = random_polite_word()
         text = f"{word}!"
+        text = text[0].upper() + text[1:]
         tweet_contents = gen_tweet_contents(word)
         color = random.choice(COLORS)
         image = random_image()
