@@ -143,7 +143,6 @@ def main() -> None:
                 "Not tweeting, because test mode, but contents would be:"
             )
             LOGGER.info(tweet_contents)
-            os.system(f"firefox {HTML_FILENAME} &")
             os.system(f"xdg-open {IMAGE_FILENAME} &")
         else:
             api.update_with_media(IMAGE_FILENAME, tweet_contents)
