@@ -31,6 +31,7 @@ IMAGE_FONT = (
     "static/fonts/Glacial Indifference Desktop Family OTF/"
     "GlacialIndifference-Regular.otf"
 )
+TWEET_CONTENTS = "Beep boop... {}"
 
 try:
     from secret import (
@@ -46,7 +47,7 @@ except ImportError:
     TWITTER_SECRET = os.environ.get("TWITTER_SECRET")
 
 
-def random_word():
+def random_word() -> str:
     """Return a random word from the word list."""
     # Loading from JSON for better performance.
     with open(WORD_LIST) as infile:
@@ -54,7 +55,7 @@ def random_word():
         return random.choice(words)
 
 
-def random_polite_word():
+def random_polite_word() -> str:
     """Return a random non-profane word from the word list."""
     word = random_word()
     while profanity.contains_profanity(word):
@@ -73,11 +74,6 @@ def random_image() -> str:
     return image_name
 
 
-def gen_tweet_contents(word: str) -> str:
-    """Placeholder."""
-    return "Beep boop... {}".format(word)
-
-
 def generate_html(color: str, word: str, image: str) -> str:
     """Return HTML formatted with a given word and image."""
     # Nice to have: render this as a homepage using Flask
@@ -87,10 +83,7 @@ def generate_html(color: str, word: str, image: str) -> str:
 
 
 def generate_html_file(*args) -> None:
-    """Create HTML formatted with a given word and image.
-
-    :return: The HTML file's filename.
-    """
+    """Create HTML formatted with a given word and image."""
     html = generate_html(*args)  # pylint: disable=no-value-for-parameter
     with open(HTML_FILENAME, "w") as outfile:
         outfile.write(html)
@@ -103,10 +96,7 @@ def center_item(context_width: int, item_width: int) -> int:
 
 
 def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
-    """Create an image formatted with a given word and image.
-
-    :return: The image's filename.
-    """
+    """Create an image formatted with a given word and image."""
     image_dims = (1476, 772)
     text_vertical_offset = 130
     image_vertical_offset = 205
@@ -160,7 +150,7 @@ def main() -> None:
         word = random_polite_word()
         text = f"{word}!"
         text = text[0].upper() + text[1:]
-        tweet_contents = gen_tweet_contents(word)
+        tweet_contents = TWEET_CONTENTS.format(word)
         color = random.choice(COLORS)
         image = random_image()
         generate_html_file(color, text, image)
