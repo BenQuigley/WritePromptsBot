@@ -24,12 +24,14 @@ LOGGER.setLevel(logging.INFO)
 INTERVAL = 60 * 60 * 8  # tweet every 8 hours
 STATIC_DIR = "static"
 WORD_LIST = os.path.join(STATIC_DIR, "english-words/words_dictionary.json")
-ICONS_ZIP = os.path.join(STATIC_DIR, "lorc_icons/game-icons.net.svg.zip")
+ICONS_ZIP = os.path.join(STATIC_DIR, "lorc_icons/game-icons.net.png.zip")
 HTML_TEMPLATE = "templates/image.html"
 HTML_FILENAME = "writing_prompt.html"
 IMAGE_FILENAME = "writing_prompt.png"
-IMAGE_FONT = ("static/fonts/Glacial Indifference Desktop Family OTF/"
-              "GlacialIndifference-Regular.otf")
+IMAGE_FONT = (
+    "static/fonts/Glacial Indifference Desktop Family OTF/"
+    "GlacialIndifference-Regular.otf"
+)
 
 try:
     from secret import (
@@ -72,17 +74,6 @@ def random_image() -> str:
     return image_name
 
 
-def color_svg_image(svg_path: str, color: str) -> None:
-    """Edit an SVG image to replace its background with the supplied color."""
-    with open(svg_path) as infile:
-        svg_contents = infile.readlines()
-    with open(svg_path, "w") as outfile:
-        for line in svg_contents:
-            processed_line = re.sub('fill="#fff"', f'fill="{color}"', line)
-            LOGGER.debug("Writing %s", processed_line)
-            outfile.write(processed_line)
-
-
 def gen_tweet_contents(word: str) -> str:
     """Placeholder."""
     return "Beep boop... {}".format(word)
@@ -112,16 +103,21 @@ def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
     :return: The image's filename.
     """
     image_dims = (1200, 628)
-    image = Image.new("RGB", image_dims, color=color)
+    image = Image.new("RGBA", image_dims, color=color)
     # Load the font and draw the word.
     image_font = ImageFont.truetype(IMAGE_FONT, 85)
     draw = ImageDraw.Draw(image)
     # Center the text on the image.
     width, _height = draw.textsize(word, font=image_font)
-    draw.text(((image_dims[0] - width) / 2, 10), word, fill=(0, 0, 0), font=image_font)
+    draw.text(
+        ((image_dims[0] - width) / 2, 10),
+        word,
+        fill=(0, 0, 0),
+        font=image_font,
+    )
     # Open the SVG file, and stamp it onto the formatted image.
-    icon = Image.open(icon_image)
-    image.paste(icon, (40, 40))
+    icon = Image.open(icon_image).convert("RGBA")
+    image.paste(icon, (40, 40), mask=icon)
     image.save(IMAGE_FILENAME)
 
 
@@ -140,7 +136,6 @@ def main() -> None:
         tweet_contents = gen_tweet_contents(word)
         color = random.choice(COLORS)
         image = random_image()
-        color_svg_image(image, color)
         generate_html_file(color, text, image)
         generate_formatted_image(color, text, image)
         if TEST_MODE:
