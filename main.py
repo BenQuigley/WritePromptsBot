@@ -97,27 +97,35 @@ def generate_html_file(*args) -> None:
         outfile.write(html)
 
 
+def center_item(context_width: int, item_width: int) -> int:
+    """Return the start point to place an item centered in a context."""
+    assert context_width > item_width
+    return int((context_width - item_width) / 2)
+
+
 def generate_formatted_image(color: str, word: str, icon_image: str) -> None:
     """Create an image formatted with a given word and image.
 
     :return: The image's filename.
     """
-    image_dims = (1200, 628)
+    image_dims = (1476, 772)
     image = Image.new("RGBA", image_dims, color=color)
     # Load the font and draw the word.
-    image_font = ImageFont.truetype(IMAGE_FONT, 85)
+    image_font = ImageFont.truetype(IMAGE_FONT, 130)
     draw = ImageDraw.Draw(image)
     # Center the text on the image.
     width, _height = draw.textsize(word, font=image_font)
     draw.text(
-        ((image_dims[0] - width) / 2, 10),
+        (center_item(image_dims[0], width), 35),
         word,
         fill=(0, 0, 0),
         font=image_font,
     )
     # Open the SVG file, and stamp it onto the formatted image.
     icon = Image.open(icon_image).convert("RGBA")
-    image.paste(icon, (40, 40), mask=icon)
+    image.paste(
+        icon, (center_item(image_dims[0], icon.width), 205), mask=icon
+    )
     image.save(IMAGE_FILENAME)
 
 
