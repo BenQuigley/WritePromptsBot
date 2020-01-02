@@ -5,7 +5,6 @@ import logging
 import os
 import random
 import sys
-import time
 import zipfile
 
 from PIL import Image, ImageDraw, ImageFont
@@ -20,7 +19,6 @@ logging.basicConfig()
 LOGGER = logging.getLogger("WritePromptsBot logger")
 LOGGER.setLevel(logging.INFO)
 
-INTERVAL = 60 * 60 * 8  # tweet every 8 hours
 STATIC_DIR = "static"
 WORD_LIST = os.path.join(STATIC_DIR, "english-words/words_dictionary.json")
 ICONS_ZIP = os.path.join(STATIC_DIR, "lorc_icons/game-icons.net.png.zip")
@@ -146,45 +144,42 @@ def main() -> None:
     """Main control flow function."""
     profanity.load_censor_words()  # Initialize the list of bad words
 
-    while True:
-        word = random_polite_word()
-        text = f"{word}!"
-        text = text[0].upper() + text[1:]
-        tweet_contents = TWEET_CONTENTS.format(word)
-        color = random.choice(COLORS)
-        image = random_image()
-        generate_html_file(color, text, image)
-        generate_formatted_image(color, text, image)
-        if TEST_MODE:
-            LOGGER.info(
-                "Not tweeting, because test mode, but contents would be:"
+    word = random_polite_word()
+    text = f"{word}!"
+    text = text[0].upper() + text[1:]
+    tweet_contents = TWEET_CONTENTS.format(word)
+    color = random.choice(COLORS)
+    image = random_image()
+    generate_html_file(color, text, image)
+    generate_formatted_image(color, text, image)
+    if TEST_MODE:
+        LOGGER.info(
+            "Not tweeting, because test mode, but contents would be:"
+        )
+        LOGGER.info(tweet_contents)
+        os.system(f"xdg-open {IMAGE_FILENAME} &")
+    else:
+        if not all(
+            (
+                TWITTER_CONSUMER_KEY,
+                TWITTER_CONSUMER_SECRET,
+                TWITTER_KEY,
+                TWITTER_SECRET,
             )
-            LOGGER.info(tweet_contents)
-            os.system(f"xdg-open {IMAGE_FILENAME} &")
-        else:
-            if not all(
-                (
-                    TWITTER_CONSUMER_KEY,
-                    TWITTER_CONSUMER_SECRET,
-                    TWITTER_KEY,
-                    TWITTER_SECRET,
-                )
-            ):
-                raise ValueError(
-                    "Twitter authentication secrets have not been loaded."
-                )
-            auth = tweepy.OAuthHandler(
-                TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
+        ):
+            raise ValueError(
+                "Twitter authentication secrets have not been loaded."
             )
-            auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
-            api = tweepy.API(auth)
-            LOGGER.info(
-                "Logged in successfully as {}".format(api.me().screen_name)
-            )
-            api.update_with_media(IMAGE_FILENAME, tweet_contents)
-            LOGGER.info("Tweeted '%s'", tweet_contents)
-
-        time.sleep(INTERVAL)
+        auth = tweepy.OAuthHandler(
+            TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
+        )
+        auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
+        api = tweepy.API(auth)
+        LOGGER.info(
+            "Logged in successfully as {}".format(api.me().screen_name)
+        )
+        api.update_with_media(IMAGE_FILENAME, tweet_contents)
+        LOGGER.info("Tweeted '%s'", tweet_contents)
 
 
 if __name__ == "__main__":
