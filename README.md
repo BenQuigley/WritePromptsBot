@@ -1,7 +1,29 @@
 # WritePromptsBot
 
-This bot creates writing prompts from open source art and a wordlist and
-tweets them out every day for your enjoyment.
+This bot creates writing prompts from open source art and a wordlist and tweets them out every day
+for your enjoyment.
+
+## Using the Heroku Scheduler
+
+These days, I mostly use it as an example of how to schedule a recurring event by hosting it on
+Heroku and using the Heroku scheduler. Here is how to do that:
+
+1. [Make a Heroku app](https://devcenter.heroku.com/articles/creating-apps) (there is a free tier at
+   the time of this writing that works perfectly well for most scripting purposes), using whatever
+   language you like. Deploy the app to Heroku.
+2. Determine the bash command to run your program. WritePromptsBot is a Python app, so its run
+   command is `python3 main.py`.
+3. Use [these instructions](https://devcenter.heroku.com/articles/scheduler) to add the Heroku
+   Scheduler add-on to your app (also free at the time of this writing).
+4. Go to your [Heroku Dashboard](https://dashboard.heroku.com). Click Apps, then find your app.
+   Click the "Resources" tab, then click "Heroku Scheduler" to open your scheduler configuration.
+   Click "Add Job" to schedule your event. Heroku will prompt you to enter the timing for when the
+   command should run, and what command it should use to run your code (see #2). When you are done,
+   click "Save Job."
+
+That's it!
+
+## About WritePromptsBot
 
 On Twitter: [WritePromptsBot](https://twitter.com/WritePromptsBot)
 
