@@ -6,11 +6,11 @@ for your enjoyment.
 ## Using the Heroku Scheduler
 
 These days, I mostly use this app as an example of how to take a program you've written, and run the
-program automatically on a recurring basis, and using the Heroku scheduler. Here is how to do that:
+program automatically on a recurring basis, using the Heroku scheduler. Here is how to do that:
 
 1. [Make a Heroku app](https://devcenter.heroku.com/articles/creating-apps) (there is a free tier at
    the time of this writing that works perfectly well for most scripting purposes), using whatever
-   language you like. Deploy the app to Heroku.
+   language (that Heroku supports) you like. Deploy the app to Heroku.
 2. Determine the bash command to run your program. WritePromptsBot is a Python script written in the
    file [main.py](https://github.com/BenQuigley/WritePromptsBot/blob/master/main.py), so its run
    command is `python3 main.py`.
