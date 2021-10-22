@@ -1,4 +1,4 @@
-# Writing Prompts Bot
+# WritePromptsBot
 
 This bot creates writing prompts from open source art and a wordlist and
 tweets them out every day for your enjoyment.
